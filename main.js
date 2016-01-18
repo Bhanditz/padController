@@ -19,11 +19,10 @@ var Dial = function(type, code, still, max, min) {
 		this.min   = 0;
 		this.still = 0;
 		this.max   = 1;
-	} else {
-		this.min   = min || still;
-		this.still = still;
-		this.max   = max;
-	}
+	} else
+	this.min   = this.min   || (min || still);
+	this.still = this.still || still;
+	this.max   = this.max   || max;
 
 
 	this.value = null;
@@ -40,6 +39,16 @@ var Dial = function(type, code, still, max, min) {
 var Dials = function(dials) {
 	this.dials = dials;
 
+	this.get = function(n) {
+		var self = this;
+		return this.dials[n];
+	}
+	this.set = function(val) {
+		var self = this;
+		for(var n in self.dials) self.dials[n].set(val);
+		return this;
+	}
+
 	this.byType = function(type) {
 		var self = this, d = {};
 		for(var n in self.dials) if (self.dials[n].type == type) d[n] = self.dials[n];
@@ -54,6 +63,7 @@ var Dials = function(dials) {
 	this.toString = function() {
 		var self = this, d = {}, ret = "";
 		for(var n in self.dials) ret += n + " => " + self.dials[n].toString() + "\n";
+		return ret;
 	};
 };
 
@@ -65,8 +75,8 @@ var Controller = function() {
 		"ABS_RX"    : new Dial(3, 3, 0, 32767, -32768),
 		"ABS_RY"    : new Dial(3, 4, 0, 32767, -32768),
 
-		"ABS_HAT0X" : new Dial(3, 16, 0, 1, 0),
-		"ABS_HAT0Y" : new Dial(3, 17, 0, 1, 0),
+		"ABS_HAT0X" : new Dial(3, 16, 0, 1, -1),
+		"ABS_HAT0Y" : new Dial(3, 17, 0, 1, -1),
 
 		"ABS_Z"     : new Dial(3, 2, 0, 255),
 		"ABS_RZ"    : new Dial(3, 5, 0, 255),
@@ -87,11 +97,31 @@ var Controller = function() {
 		"BTN_THUMBR": new Dial(1, 318),
 	});
 
+	this.dial = function(n) { return this.dials.get(n); }
+
 	this.dialsByEvent = function(e) {
 		var self = this;
 		var d = self.dials.byType(e.type).byCode(e.code);
 		return d;
 	};
+
+
+
+	this.events = {};
+
+	this.addEvent = function(n, fn) {
+		var self = this;
+		if (typeof self.events[n] === "undefined") self.events[n] = [];
+		self.events[n].push(fn);
+	}
+
+	this.callEvent = function(n) {
+		var self = this;
+		console.log("Running event for '"+n+"'");
+		if (typeof self.events[n] === "undefined") console.log("No events added");
+		else for(var i in self.events[n])
+			self.events[n][i](self.dials.get(n));
+	}
 };
 
 
@@ -100,11 +130,10 @@ var r = fs.createReadStream('/dev/input/event17');
 var ohjain = new Controller();
 
 r.on('data', function(d) {
-	console.log(d);
+
 	var e = new Event(d);
-	console.log(e.toString());
+	var ds = ohjain.dialsByEvent(e).set(e.value);
 
-	var d = ohjain.dialsByEvent(e);
-	console.log(d.toString());
-
+	for(var n in ds.dials) ohjain.callEvent(n);
+		
 });
