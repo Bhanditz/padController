@@ -1,4 +1,5 @@
 var fs = require('fs');
+var exec = require('child_process').exec;
 
 
 var Event = function(d) {
@@ -131,9 +132,15 @@ var ohjain = new Controller();
 
 r.on('data', function(d) {
 
+	var dtime, stime = process.hrtime();
+
 	var e = new Event(d);
 	var ds = ohjain.dialsByEvent(e).set(e.value);
-
 	for(var n in ds.dials) ohjain.callEvent(n);
-		
+
+
+	dtime = process.hrtime();
+
+	console.log("Aika: "+((dtime[0] * 1e9 + dtime[1]) - (stime[0] * 1e9 + stime[1]))+"ns");
+
 });
