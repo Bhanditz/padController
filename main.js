@@ -144,3 +144,18 @@ r.on('data', function(d) {
 	console.log("Aika: "+((dtime[0] * 1e9 + dtime[1]) - (stime[0] * 1e9 + stime[1]))+"ns");
 
 });
+
+var aanenvoimakkuus_timer = null;
+
+
+
+
+
+
+ohjain.addEvent("ABS_HAT0Y", function(d){
+	if (d.value == -1) {
+		aanenvoimakkuus_timer = setInterval(function(){ exec("amixer sset 'Master' 1%+") }, 200);
+	} else if (d.value == 1) {
+		aanenvoimakkuus_timer = setInterval(function(){ exec("amixer sset 'Master' 1%-") }, 200);
+	} else clearInterval(aanenvoimakkuus_timer);
+});
