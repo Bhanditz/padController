@@ -1,5 +1,5 @@
-var fs = require('fs');
-var exec = require('child_process').exec;
+var fs   = require('fs'),
+    exec = require('child_process').exec;
 
 
 var Event = function(d) {
@@ -20,7 +20,7 @@ var Dial = function(type, code, still, max, min) {
 		this.min   = 0;
 		this.still = 0;
 		this.max   = 1;
-	} else
+	}
 	this.min   = this.min   || (min || still);
 	this.still = this.still || still;
 	this.max   = this.max   || max;
@@ -34,7 +34,7 @@ var Dial = function(type, code, still, max, min) {
 
 	this.toString = function() {
 		return this.type+"/"+this.code+" => "+this.value+"@["+this.min+","+this.max+"]";
-	};
+	}
 };
 
 var Dials = function(dials) {
@@ -50,22 +50,24 @@ var Dials = function(dials) {
 		return this;
 	}
 
-	this.byType = function(type) {
+	this.byField = function(field, val) {
 		var self = this, d = {};
-		for(var n in self.dials) if (self.dials[n].type == type) d[n] = self.dials[n];
+		for(var n in self.dials) {
+			if (self.dials[n][field] == val)
+				d[n] = self.dials[n];
+		}
 		return new Dials(d);
 	}
-	this.byCode = function(code) {
-		var self = this, d = {};
-		for(var n in self.dials) if (self.dials[n].code == code) d[n] = self.dials[n];
-		return new Dials(d);
-	}
+
+	this.byType  = function(a) { return this.byField("type",  a); }
+	this.byCode  = function(a) { return this.byField("code",  a); }
+	this.byValue = function(a) { return this.byField("value", a); }
 
 	this.toString = function() {
 		var self = this, d = {}, ret = "";
 		for(var n in self.dials) ret += n + " => " + self.dials[n].toString() + "\n";
 		return ret;
-	};
+	}
 };
 
 var Controller = function() {
@@ -104,7 +106,7 @@ var Controller = function() {
 		var self = this;
 		var d = self.dials.byType(e.type).byCode(e.code);
 		return d;
-	};
+	}
 
 
 
@@ -146,7 +148,6 @@ r.on('data', function(d) {
 });
 
 
-
 var aanenvoimakkuus_timer = null;
 
 ohjain.addEvent("ABS_HAT0Y", function(d){
@@ -156,6 +157,7 @@ ohjain.addEvent("ABS_HAT0Y", function(d){
 		aanenvoimakkuus_timer = setInterval(function(){ exec("amixer sset 'Master' 1%-") }, 200);
 	} else clearInterval(aanenvoimakkuus_timer);
 });
+
 
 ohjain.addEvent("BTN_TL", function(d){
 	if (d.value != 1) return;
