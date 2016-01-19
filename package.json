@@ -1,0 +1,18 @@
+{
+  "name": "pad_controller",
+  "version": "1.0.0",
+  "description": "Langaton ohjain NapiPC'hn",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leonarven/padController.git"
+  },
+  "author": "Miro Nieminen <github@miron.fi> (http://miron.fi/)",
+  "bugs": {
+    "url": "https://github.com/leonarven/padController/issues"
+  },
+  "homepage": "https://github.com/leonarven/padController#readme"
+}
