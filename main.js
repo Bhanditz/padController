@@ -126,8 +126,8 @@ var Controller = function() {
 };
 
 
-var r = fs.createReadStream('/dev/input/event17');
 
+var r = fs.createReadStream('/dev/input/event17');
 var ohjain = new Controller();
 
 r.on('data', function(d) {
@@ -145,12 +145,9 @@ r.on('data', function(d) {
 
 });
 
+
+
 var aanenvoimakkuus_timer = null;
-
-
-
-
-
 
 ohjain.addEvent("ABS_HAT0Y", function(d){
 	if (d.value == -1) {
@@ -158,4 +155,9 @@ ohjain.addEvent("ABS_HAT0Y", function(d){
 	} else if (d.value == 1) {
 		aanenvoimakkuus_timer = setInterval(function(){ exec("amixer sset 'Master' 1%-") }, 200);
 	} else clearInterval(aanenvoimakkuus_timer);
+});
+
+ohjain.addEvent("BTN_TL", function(d){
+	if (d.value != 1) return;
+	exec("amixer sset 'Master' 100%");
 });
